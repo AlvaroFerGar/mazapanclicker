@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mazapanes Clicker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        #cookie {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #cookie:active {
+            transform: scale(0.95);
+        }
+        #score, #clickersPerSecond, #clickInstructions {
+            font-size: 24px;
+            margin: 10px;
+        }
+        .upgrade {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .upgrade:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mazapanes Clicker</h1>
+    <div id="score">Mazapanes: 0</div>
+    <div id="errors_score">Errores: 0</div>
+    <div id="clickInstructions">Haz clic izquierdo</div>
+
+    <img id="mazapan" src="assets/images/mazapan.png" alt="Cookie">
+
+    <script>
+        
+        const RESIZEDOWN_STAGE=10;
+        const RESIZEUP_STAGE=20;
+        const MOVING_STAGE=30;
+        const ROTATE_STAGE=40;
+        
+        // Variables del juego
+        let mazapanes_count = 0;
+        let misclick_count = 0;
+        let currentClickRequirement = 'left';
+
+
+        // Elementos del DOM
+        const mazapanElement = document.getElementById('mazapan');
+        const scoreElement = document.getElementById('score');
+        const errorsScoreElement = document.getElementById('errors_score');
+        const clickInstructionsElement = document.getElementById('clickInstructions');
+
+
+
+
+        // Evento de click en la cookie
+        mazapanElement.addEventListener('mousedown', (event) => {
+            event.preventDefault(); // Prevenir el comportamiento por defecto
+
+            switch(currentClickRequirement) {
+                case 'left':
+                    if (event.button === 0)
+                    {
+                        misclick_count ++;
+                        currentClickRequirement = 'right';
+                        clickInstructionsElement.textContent = 'Haz clic derecho';
+                    }
+                    break;
+                case 'right':
+                    if (event.button === 2)
+                    {
+                        misclick_count ++;
+                        if(misclick_count <= RESIZEDOWN_STAGE)
+                        {
+                            currentClickRequirement = 'middle';
+                            clickInstructionsElement.textContent = 'Haz clic central';
+                        }
+                        else
+                        {
+                            currentClickRequirement = 'left';
+                            clickInstructionsElement.textContent = 'Haz clic izquierdo';
+                        }
+                    }
+                    break;
+                case 'middle':
+                    if (event.button === 1)
+                    {
+                        misclick_count ++;
+                        currentClickRequirement = 'left';
+                        clickInstructionsElement.textContent = 'Haz clic izquierdo';
+                    }
+                    break;
+            }
+
+            if(misclick_count > RESIZEDOWN_STAGE)
+            {
+                let newWidth = Math.max(100, 200 - (misclick_count * 5));
+                mazapanElement.style.width = `${newWidth}px`;
+                mazapanElement.style.height = `${newWidth}px`;
+            }
+            if(misclick_count > RESIZEUP_STAGE)
+            {
+                let newWidth = Math.max(100, 200 + (misclick_count * 5));
+                mazapanElement.style.width = `${newWidth}px`;
+                mazapanElement.style.height = `${newWidth}px`;
+            }
+            if(misclick_count > MOVING_STAGE)
+            {
+                mazapanElement.style.x = `${mazapanElement.style.x+100}px`;
+                mazapanElement.style.y = `${mazapanElement.style.y+100}px`;
+            }
+
+
+            updateDisplay();
+        });
+
+        // Prevenir menú contextual en clic derecho
+        mazapanElement.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+
+        // Actualizar la pantalla
+        function updateDisplay() {
+            scoreElement.textContent = `Mazapanes: ${Math.floor(mazapanes_count)}`;
+            errorsScoreElement.textContent = `Errores al clicar: ${Math.floor(misclick_count)}`;
+
+            console.log('Estado actual ', mazapanes_count);
+        }
+
+    </script>
+</body>
+</html>
