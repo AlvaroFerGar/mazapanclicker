@@ -79,26 +79,39 @@ verletIntegrate(mazapanPos, mazapanPrevPos);
     
 for (let i = 0; i < VERLET_ITERATIONS; i++) {
     // Calcular distancia considerando todo el rectángulo
-    const dist = distanceToRectangle(mousePos, rectangleBounds);
-    
+    const closestX = Math.max(rectangleBounds.left, Math.min(mousePos.x, rectangleBounds.right));
+    const closestY = Math.max(rectangleBounds.top, Math.min(mousePos.y, rectangleBounds.bottom));
+
+    // Calcular la distancia entre el punto del ratón y el punto más cercano del rectángulo
+    const distanceX = mousePos.x - closestX;
+    const distanceY = mousePos.y - closestY;
+
+    const dist = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
     if (dist <= REPULSION_RADIUS) {
         // Calcular punto central del rectángulo
         const centerX = (rectangleBounds.left + rectangleBounds.right) / 2;
         const centerY = (rectangleBounds.top + rectangleBounds.bottom) / 2;
 
         // Calcular ángulo desde el centro del rectángulo
-        const angle = Math.atan2(mazapanPos.y - mousePos.y, mazapanPos.x - mousePos.x);
-        
+        const angle = Math.atan2(mousePos.y - mazapanPos.y, mousePos.x - mazapanPos.x);
+
         // Calcular factor de repulsión
-        const repulsionFactor = (REPULSION_RADIUS - dist) / REPULSION_RADIUS;
-        
-        // Aplicar repulsión
-        mazapanPos.x += Math.cos(angle) * repulsionFactor * 5;
-        mazapanPos.y += Math.sin(angle) * repulsionFactor * 5;
+        const repulsionFactorX = (REPULSION_RADIUS - distanceX) / REPULSION_RADIUS;
+        const repulsionFactorY = (REPULSION_RADIUS - distanceY) / REPULSION_RADIUS;
+        let repulsionXSign=1;
+        if (mousePos.x > mazapanPos.x)
+            repulsionXSign=-1;
+        let repulsionYSign=1;
+        if (mousePos.y > mazapanPos.y)
+            repulsionYSign=-1;
+        // Aplicar repulsión: usar el ángulo para determinar la dirección de movimiento
+        mazapanPos.x += repulsionXSign* repulsionFactorX * 5;
+        mazapanPos.y += repulsionYSign* repulsionFactorY * 5;
     }
     
     // Retorno a posición original (similar al código anterior)
-    if(dist >= REPULSION_RADIUS * 1.2) {
+    if(dist >= REPULSION_RADIUS) {
         mazapanPos.x += (originalX - mazapanPos.x) * RETURN_STRENGTH;
         mazapanPos.y += (originalY - mazapanPos.y) * RETURN_STRENGTH;
     }
@@ -168,6 +181,10 @@ mazapanElement.addEventListener('mousedown', (event) => {
     updateDisplay();
 });
 
+// Prevenir menú contextual en clic derecho
+window.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+});
 // Prevenir menú contextual en clic derecho
 mazapanElement.addEventListener('contextmenu', (event) => {
     event.preventDefault();
