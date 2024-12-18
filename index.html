@@ -3,48 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Mazapanes Clicker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        #mazapan {
-            width: 256px;
-            height: 106px;
-            cursor: pointer;
-            transition: transform 0.1s;
-            user-select: none;
-            position: absolute;
-        }
-        #mazapan:active {
-            transform: scale(1);
-        }
-        #score, #errors_score, #clickInstructions {
-            font-size: 24px;
-            margin: 10px;
-        }
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <h1>Mazapanes Clicker</h1>
-    <div class="game-container">
+    <div class="header">
+        <h1>Mazapanes Clicker</h1>
         <div id="score">Mazapanes: 0</div>
         <div id="errors_score">Errores: 0</div>
         <div id="clickInstructions">Haz clic izquierdo</div>
-
+    </div>
+    <div class="game-container">
         <img id="mazapan" src="assets/images/mazapan.png" alt="Mazapan">
     </div>
 
@@ -63,10 +31,10 @@
         const clickInstructionsElement = document.getElementById('clickInstructions');
 
         // Configuración de parámetros
-        const REPULSION_RADIUS = 50; // Radio de repulsión
+        const REPULSION_RADIUS = 100; // Radio de repulsión
         const VERLET_ITERATIONS = 1; // Número de iteraciones para estabilidad
-        const DAMPING = 0.98; // Reduce el movimiento gradualmente
-        const RETURN_STRENGTH = 0.001; // Fuerza de retorno a la posición original
+        const DAMPING = 0.9; // Reduce el movimiento gradualmente
+        const RETURN_STRENGTH = 0.025; // Fuerza de retorno a la posición original
 
         // Estado del mazapán
         let mazapanPos = { x: 0, y: 0 };
