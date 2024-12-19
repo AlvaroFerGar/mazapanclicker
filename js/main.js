@@ -1,16 +1,32 @@
-// Variables del juego
-let mazapanes_count = 0;
-let misclick_count = 0;
-let currentClickRequirement = 'left';
-let originalX, originalY;
-
 // Elementos del DOM
 const mazapanElement = document.getElementById('mazapan');
 const scoreElement = document.getElementById('score');
 const errorsScoreElement = document.getElementById('errors_score');
 const clickInstructionsElement = document.getElementById('clickInstructions');
 
+// Inicializar objetos
+const game = new Game();
 const mazapan = new Mazapan(mazapanElement);
+
+// Inicializar eventos del juego
+game.initializeEvents(mazapanElement);
+
+// Crear debug de repulsión
+const repulsionDebugElement = document.createElement('div');
+repulsionDebugElement.style.position = 'absolute';
+repulsionDebugElement.style.borderRadius = '50%';
+repulsionDebugElement.style.border = '2px solid rgba(0, 255, 0, 0.5)';
+repulsionDebugElement.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+repulsionDebugElement.style.pointerEvents = 'none';
+repulsionDebugElement.style.zIndex = '1000';
+document.body.appendChild(repulsionDebugElement);
+
+function updateDisplay() {
+    const score = game.getScore();
+    scoreElement.textContent = `Mazapanes: ${score.mazapanes}`;
+    errorsScoreElement.textContent = `Errores al clicar: ${score.misclicks}`;
+    clickInstructionsElement.textContent = `Haz clic ${game.currentClickRequirement === 'left' ? 'izquierdo' : 'derecho'}`;
+}
 
 function animateGame() {
     mazapan.animate();
@@ -23,65 +39,5 @@ function animateGame() {
     requestAnimationFrame(animateGame);
 }
 
-const repulsionDebugElement = document.createElement('div');
-repulsionDebugElement.style.position = 'absolute';
-repulsionDebugElement.style.borderRadius = '50%';
-repulsionDebugElement.style.border = '2px solid rgba(255, 0, 0, 0.5)';
-repulsionDebugElement.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-repulsionDebugElement.style.pointerEvents = 'none';
-repulsionDebugElement.style.zIndex = '1000';
-document.body.appendChild(repulsionDebugElement);
-
+// Iniciar el juego
 requestAnimationFrame(animateGame);
-
-
-// Evento de click en la cookie
-mazapanElement.addEventListener('mousedown', (event) => {
-    event.preventDefault(); // Prevenir el comportamiento por defecto
-
-    switch(currentClickRequirement) {
-        case 'left':
-            if (event.button === 0)
-            {
-                misclick_count ++;
-                currentClickRequirement = 'right';
-                clickInstructionsElement.textContent = 'Haz clic derecho';
-            }
-            break;
-        case 'right':
-            if (event.button === 2)
-            {
-                misclick_count ++;
-                currentClickRequirement = 'left';
-                clickInstructionsElement.textContent = 'Haz clic izquierdo';
-             }
-            break;
-        case 'middle':
-            if (event.button === 1)
-            {
-                misclick_count ++;
-                currentClickRequirement = 'left';
-                clickInstructionsElement.textContent = 'Haz clic izquierdo';
-            }
-            break;
-    }
-
-    updateDisplay();
-});
-
-// Prevenir menú contextual en clic derecho
-window.addEventListener('contextmenu', (event) => {
-    event.preventDefault();
-});
-// Prevenir menú contextual en clic derecho
-mazapanElement.addEventListener('contextmenu', (event) => {
-    event.preventDefault();
-});
-
-// Actualizar la pantalla
-function updateDisplay() {
-    scoreElement.textContent = `Mazapanes: ${Math.floor(mazapanes_count)}`;
-    errorsScoreElement.textContent = `Errores al clicar: ${Math.floor(misclick_count)}`;
-
-    console.log('Estado actual ', mazapanes_count);
-}
