@@ -4,6 +4,8 @@ class Mazapan {
     static VERLET_ITERATIONS = 1;
     static DAMPING = 0.9;
     static RETURN_STRENGTH = 0.025;
+    static MOUSE_JUMP_THRESHOLD = 10; // Umbral para detectar saltos del ratón
+    static JUMP_REPULSION_RADIUS = 150; // Radio de repulsión aumentado para saltos
 
     constructor(element) {
         this.element = element;
@@ -11,23 +13,78 @@ class Mazapan {
         this.previousPosition = { x: 0, y: 0 };
         this.originalPosition = { x: 0, y: 0 };
         this.mousePosition = { x: 0, y: 0 };
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.lastMouseMoveTime = 0;
         
-        // Inicializar posición original cuando el elemento esté listo
         window.addEventListener('load', () => {
             this.originalPosition.x = this.element.offsetLeft;
             this.originalPosition.y = this.element.offsetTop;
             
             this.position = { ...this.originalPosition };
             this.previousPosition = { ...this.position };
+            this.previousMousePosition = { ...this.mousePosition };
         });
 
-        // Configurar el seguimiento del ratón
         document.addEventListener('mousemove', (event) => {
+            this.previousMousePosition = { ...this.mousePosition };
             this.mousePosition.x = event.clientX;
             this.mousePosition.y = event.clientY;
-            console.log("mouse:"+ this.mousePosition.x+", "+this.mousePosition.y)
-
+            
+            // Calcular la velocidad del movimiento del ratón
+            const currentTime = performance.now();
+            const timeDelta = currentTime - this.lastMouseMoveTime;
+            this.lastMouseMoveTime = currentTime;
+            
+            // Calcular la distancia del salto
+            const jumpDistance = Math.sqrt(
+                Math.pow(this.mousePosition.x - this.previousMousePosition.x, 2) +
+                Math.pow(this.mousePosition.y - this.previousMousePosition.y, 2)
+            );
+            
+            // Si detectamos un salto grande, crear puntos intermedios
+            if (jumpDistance > Mazapan.MOUSE_JUMP_THRESHOLD) {
+                console.log("JUMP")
+                this.handleMouseJump(jumpDistance);
+            }
         });
+    }
+
+    handleMouseJump(jumpDistance) {
+        // Crear puntos intermedios para simular la trayectoria
+        const steps = Math.ceil(jumpDistance / 20); // Un punto cada 20px
+        for (let i = 1; i <= steps; i++) {
+            const t = i / steps;
+            const intermediatePoint = {
+                x: this.previousMousePosition.x + (this.mousePosition.x - this.previousMousePosition.x) * t,
+                y: this.previousMousePosition.y + (this.mousePosition.y - this.previousMousePosition.y) * t
+            };
+            
+            // Aplicar repulsión desde este punto intermedio
+            this.applyRepulsionFromPoint(intermediatePoint, Mazapan.JUMP_REPULSION_RADIUS);
+        }
+    }
+
+    applyRepulsionFromPoint(point, radius) {
+        const bounds = this.getBounds();
+        const closestX = Math.max(bounds.left, Math.min(point.x, bounds.right));
+        const closestY = Math.max(bounds.top, Math.min(point.y, bounds.bottom));
+
+        const distanceX = point.x - closestX;
+        const distanceY = point.y - closestY;
+        const dist = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+        //if (dist <= radius) {
+            const repulsionFactorX = (radius - distanceX) / radius;
+            const repulsionFactorY = (radius - distanceY) / radius;
+            
+            const repulsionXSign = point.x > this.position.x ? -1 : 1;
+            const repulsionYSign = point.y > this.position.y ? -1 : 1;
+
+            this.position.x += repulsionXSign * repulsionFactorX * 5;
+            this.position.y += repulsionYSign * repulsionFactorY * 5;
+        //}
+
+        return dist;
     }
 
     verletIntegrate() {
