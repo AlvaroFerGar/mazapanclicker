@@ -11,6 +11,9 @@ const mazapan = new Mazapan(mazapanElement);
 // Inicializar eventos del juego
 game.initializeEvents(mazapanElement);
 
+const arrow = new Arrow();
+
+
 // Crear debug de repulsión
 const repulsionDebugElement = document.createElement('div');
 repulsionDebugElement.style.position = 'absolute';
@@ -25,7 +28,7 @@ function updateDisplay() {
     const score = game.getScore();
     scoreElement.textContent = `Mazapanes: ${score.mazapanes}`;
     errorsScoreElement.textContent = `Errores al clicar: ${score.misclicks}`;
-    clickInstructionsElement.textContent = `Haz clic ${game.currentClickRequirement === 'left' ? 'izquierdo' : 'derecho'}`;
+    clickInstructionsElement.textContent = `Haz clic izquierdo sobre el mazapan`;
 }
 
 function animateGame() {
@@ -35,6 +38,23 @@ function animateGame() {
     repulsionDebugElement.style.height = `${Mazapan.REPULSION_RADIUS * 2}px`;
     repulsionDebugElement.style.left = `${mazapan.mousePosition.x - Mazapan.REPULSION_RADIUS}px`;
     repulsionDebugElement.style.top = `${mazapan.mousePosition.y - Mazapan.REPULSION_RADIUS}px`;
+
+    // Verificar si el mazapán está fuera de la pantalla
+    const { x, y, width, height } = mazapanElement.getBoundingClientRect();
+    const { innerWidth, innerHeight } = window;
+
+    
+    if (y + height < 0) {
+        arrow.updatePosition('top', mazapan.position.x, 0);
+    } else if (y > innerHeight) {
+        arrow.updatePosition('bottom', mazapan.position.x, innerHeight - 10);
+    }else if (x + width < 0) {
+        arrow.updatePosition('left', 0, mazapan.position.y);
+    } else if (x > innerWidth) {
+        arrow.updatePosition('right', innerWidth - 10, mazapan.position.y);
+    } else {
+        arrow.hide();
+    }
 
     requestAnimationFrame(animateGame);
 }
