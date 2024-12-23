@@ -5,6 +5,7 @@ class Mazapan {
     static DAMPING = 0.9;
     static RETURN_STRENGTH = 0.025;
     static MOUSE_JUMP_THRESHOLD = 10; // Umbral para detectar saltos del ratón
+    static MOUSE_JUMP_TIME = 100; // Umbral para detectar saltos del ratón
     static JUMP_REPULSION_RADIUS = 150; // Radio de repulsión aumentado para saltos
 
     constructor(element) {
@@ -40,9 +41,8 @@ class Mazapan {
                 Math.pow(this.mousePosition.x - this.previousMousePosition.x, 2) +
                 Math.pow(this.mousePosition.y - this.previousMousePosition.y, 2)
             );
-            
             // Si detectamos un salto grande, crear puntos intermedios
-            if (jumpDistance > Mazapan.MOUSE_JUMP_THRESHOLD) {
+            if (timeDelta< Mazapan.MOUSE_JUMP_TIME && jumpDistance > Mazapan.MOUSE_JUMP_THRESHOLD) {
                 console.log("JUMP")
                 this.handleMouseJump(jumpDistance);
             }
