@@ -18,6 +18,18 @@ body {
     margin-bottom: auto;
 }
 
+
+#clickInstructions {
+    font-size: 1.5rem;  /* Aumentamos el tamaño para hacerlo más visible */
+    font-weight: bold;  /* Resaltamos el texto */
+    margin-bottom: 20px;  /* Separa el mensaje de las demás secciones */
+}
+
+#score, #errors_score, #shownEmojis {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
 .game-container {
     display: flex;
     align-items: center;
@@ -27,6 +39,60 @@ body {
     height: 100%;
     position: relative;
 }
+
+.error-popup {
+    position: fixed;
+    color: red;
+    font-size: 88px;
+    pointer-events: none;
+    animation: errorPopup 1s ease-out forwards;
+    opacity: 0;
+  }
+  
+  @keyframes errorPopup {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1);
+      transform: translateY(-20px);
+    }
+  }
+
+  .shown-emojis {
+    position: relative;
+    cursor: pointer;
+}
+
+.custom-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    word-wrap: break-word;
+    font-size: 16px;
+    white-space: nowrap;
+    z-index: 1000;
+    visibility: hidden; /* Por defecto está oculto */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* No interactuar con el tooltip */
+    text-align: center; /* Centrar texto */
+}
+
+
+.shown-emojis:hover .custom-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
 
 #mazapan {
     width: 256px;
