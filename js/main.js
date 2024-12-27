@@ -42,16 +42,27 @@ function animateGame() {
     // Verificar si el mazapán está fuera de la pantalla
     const { x, y, width, height } = mazapanElement.getBoundingClientRect();
     const { innerWidth, innerHeight } = window;
+   
+    // Determinar posición dentro de los límites de la pantalla
+    const positionX = Math.min(Math.max(0, mazapan.position.x), innerWidth - 10);
+    const positionY = Math.min(Math.max(0, mazapan.position.y), innerHeight - 10);
 
-    
     if (y + height < 0) {
-        arrow.updatePosition('top', mazapan.position.x, 0);
+        arrow.updatePosition(
+            x + width < 0 ? 'top-left' : x > innerWidth ? 'top-right' : 'top',
+            x + width < 0 ? 0 : x > innerWidth ? innerWidth - 10 : positionX,
+            0
+        );
     } else if (y > innerHeight) {
-        arrow.updatePosition('bottom', mazapan.position.x, innerHeight - 10);
-    }else if (x + width < 0) {
-        arrow.updatePosition('left', 0, mazapan.position.y);
+        arrow.updatePosition(
+            x + width < 0 ? 'bottom-left' : x > innerWidth ? 'bottom-right' : 'bottom',
+            x + width < 0 ? 0 : x > innerWidth ? innerWidth - 10 : positionX,
+            innerHeight - 10
+        );
+    } else if (x + width < 0) {
+        arrow.updatePosition('left', 0, positionY);
     } else if (x > innerWidth) {
-        arrow.updatePosition('right', innerWidth - 10, mazapan.position.y);
+        arrow.updatePosition('right', innerWidth - 10, positionY);
     } else {
         arrow.hide();
     }
