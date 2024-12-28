@@ -147,7 +147,7 @@ class Mazapan {
         };
     }
 
-    returnToOriginal() {
+    returnToAnchor() {
 
     if(this.isPathBlocked(this.position, this.anchorPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2))
         return;
@@ -162,6 +162,18 @@ class Mazapan {
     }
 
     updatePosition() {
+        const margin = 500;
+        const windowWidth = this.window.innerWidth;
+        const windowHeight = this.window.innerHeight;
+    
+        // La posicion actual y la previa se limita si ha superado las dimensiones de la ventana en algún eje
+        this.position.x = Math.max(-margin, Math.min(this.position.x, windowWidth + margin));
+        this.position.y = Math.max(-margin, Math.min(this.position.y, windowHeight + margin));
+        this.previousPosition.x = Math.max(-margin, Math.min(this.previousPosition.x, windowWidth + margin));
+        this.previousPosition.y = Math.max(-margin, Math.min(this.previousPosition.y, windowHeight + margin));
+    
+
+
         this.element.style.left = `${this.position.x}px`;
         this.element.style.top = `${this.position.y}px`;
     }
@@ -181,9 +193,8 @@ class Mazapan {
                 this.applyRepulsion();
             }
             else
-                this.returnToOriginal(dist);
+                this.returnToAnchor(dist);
         }
-        console.log("origo"+this.anchorPosition.x+" "+this.anchorPosition.y);
         this.applyDamping();
         this.updatePosition();
     }
