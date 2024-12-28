@@ -26,20 +26,21 @@ const arrow = new Arrow();
 //repulsionDebugElement.style.zIndex = '1000';
 //document.body.appendChild(repulsionDebugElement);
 
-const negativeEmojis = [
+const completeListOfEmojis = [
 '😵', '💀', '🙁', '💩', '😢', '🚫', '😣', '🖕', '❌', '🤕',
 '🛑', '😫', '👎', '🥴', '😭', '😓', '🤢', '☹️', '🤬', '❓',
 '😰', '🤮', '💔', '📉', '😨', '😡', '⚠️', '😤', '⛔', '🚷',
 ];
 
-let shownEmojis = new Set(); // Para almacenar emojis mostrados
+let collectedEmojis = new Set(); // Para almacenar emojis mostrados
 let popupActive = false; // Bandera para controlar si hay popup activo
 let tooltipTimeout = null; // Para controlar el tiempo de aparición del tooltip
+const startTime = new Date();
 
 function showTooltip() {
-    let emojiCollection = negativeEmojis.map(emoji => {
+    let emojiCollection = completeListOfEmojis.map(emoji => {
         // Si el emoji está en shownEmojis, lo muestra, si no, pone ⬜
-        return shownEmojis.has(emoji) ? emoji : '(?)';
+        return collectedEmojis.has(emoji) ? emoji : '(?)';
     }).join(' '); // Juntamos todos los emojis y (?) con un espacio entre ellos
 
     // Verificar si el tooltip ya está visible para evitar crear uno nuevo
@@ -100,10 +101,10 @@ function updateDisplay() {
     clickInstructionsElement.textContent = `Haz clic izquierdo sobre el mazapan`;
 
     if (score.misclicks > 0 && !popupActive) {
-        const randomEmoji = negativeEmojis[Math.floor(Math.random() * negativeEmojis.length)];
+        const randomEmoji = completeListOfEmojis[Math.floor(Math.random() * completeListOfEmojis.length)];
 
-        if (!shownEmojis.has(randomEmoji)) {
-            shownEmojis.add(randomEmoji);
+        if (!collectedEmojis.has(randomEmoji)) {
+            collectedEmojis.add(randomEmoji);
 
             const popup = document.createElement('div');
             popup.className = 'error-popup';
@@ -122,8 +123,17 @@ function updateDisplay() {
             }, 1000);
 
             // Comprueba si todos los emojis ya han salido
-            if (shownEmojis.size === negativeEmojis.length) {
-                alert('¡Enhorabuena! Has visto todos los emojis.');
+            if (collectedEmojis.size === completeListOfEmojis.length) {
+                const timeSpent = Math.floor((new Date() - startTime) / 1000); // Time in seconds
+                const minutes = Math.floor(timeSpent / 60);
+                const seconds = timeSpent % 60;
+                const timeMessage = minutes > 0 
+                    ? `${minutes} minutos y ${seconds} segundos` 
+                    : `${seconds} segundos`;
+                    
+                if (game.getScore().mazapanes === 0) {
+                    alert(`¡Enhorabuena! Has visto todos los emojis en solo ${timeMessage}. Mientras tanto, llevas 0 clics al mazapan`);
+                }
             }
 
             // Esperar 3 segundos para mostrar el tooltip y luego retirarlo
@@ -134,8 +144,8 @@ function updateDisplay() {
     }
 
     // Mostrar la colección de emojis
-    if (shownEmojis.size > 0) {
-        shownEmojisElement.textContent = `Colección de errores: ${shownEmojis.size}/${negativeEmojis.length}`;
+    if (collectedEmojis.size > 0) {
+        shownEmojisElement.textContent = `Colección de errores: ${collectedEmojis.size}/${completeListOfEmojis.length}`;
     }
 }
 
