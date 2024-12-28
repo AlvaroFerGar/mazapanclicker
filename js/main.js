@@ -154,6 +154,11 @@ shownEmojisElement.addEventListener('mouseover', () => {
     showTooltip();
 });
 
+// Agregar evento de clic en el mazapán para terminar el juego
+mazapanElement.addEventListener('click', () => {
+    window.location.href = './pages/end.html';
+});
+
 function animateGame() {
     mazapan.animate();
 
