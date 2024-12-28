@@ -9,21 +9,24 @@ class Mazapan {
 
     constructor(element) {
         this.element = element;
+        this.window = window;
         this.position = { x: 0, y: 0 };
         this.previousPosition = { x: 0, y: 0 };
-        this.originalPosition = { x: 0, y: 0 };
+        this.anchorPosition = { x: 0, y: 0 };
         this.mousePosition = { x: 0, y: 0 };
         this.previousMousePosition = { x: 0, y: 0 };
         this.lastMouseMoveTime = 0;
         
         window.addEventListener('load', () => {
-            this.originalPosition.x = this.element.offsetLeft;
-            this.originalPosition.y = this.element.offsetTop;
+            this.updateAnchorToCenter();
             
-            this.position = { ...this.originalPosition };
+            this.position = { ...this.anchorPosition };
             this.previousPosition = { ...this.position };
             this.previousMousePosition = { ...this.mousePosition };
         });
+
+        window.addEventListener('resize', () => this.updateAnchorToCenter());
+
 
         document.addEventListener('mousemove', (event) => {
             this.previousMousePosition = { ...this.mousePosition };
@@ -45,6 +48,20 @@ class Mazapan {
                 this.handleMouseJump(jumpDistance);
             }
         });
+    }
+
+    updateAnchorToCenter () {
+        const windowWidth = this.window.innerWidth;
+        const windowHeight = this.window.innerHeight;
+        const elementWidth = this.element.offsetWidth;
+        const elementHeight = this.element.offsetHeight;
+
+        // Calcula la posición para centrar el elemento.
+        const centerX = (windowWidth - elementWidth) / 2;
+        const centerY = (windowHeight - elementHeight) / 2;
+
+        // Guarda la posición original.
+        this.anchorPosition = { x: centerX, y: centerY };
     }
 
     handleMouseJump(jumpDistance) {
@@ -132,10 +149,10 @@ class Mazapan {
 
     returnToOriginal() {
 
-    if(this.isPathBlocked(this.position, this.originalPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2))
+    if(this.isPathBlocked(this.position, this.anchorPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2))
         return;
-    this.position.x += (this.originalPosition.x - this.position.x) * Mazapan.RETURN_STRENGTH;
-    this.position.y += (this.originalPosition.y - this.position.y) * Mazapan.RETURN_STRENGTH;
+    this.position.x += (this.anchorPosition.x - this.position.x) * Mazapan.RETURN_STRENGTH;
+    this.position.y += (this.anchorPosition.y - this.position.y) * Mazapan.RETURN_STRENGTH;
 
     }
 
@@ -166,7 +183,7 @@ class Mazapan {
             else
                 this.returnToOriginal(dist);
         }
-        
+        console.log("origo"+this.anchorPosition.x+" "+this.anchorPosition.y);
         this.applyDamping();
         this.updatePosition();
     }
