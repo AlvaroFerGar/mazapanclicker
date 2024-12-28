@@ -42,8 +42,8 @@ function showTooltip() {
     console.log("showtool");
     let emojiCollection = negativeEmojis.map(emoji => {
         // Si el emoji está en shownEmojis, lo muestra, si no, pone ⬜
-        return shownEmojis.has(emoji) ? emoji : '⬜';
-    }).join(' '); // Juntamos todos los emojis y ⬜ con un espacio entre ellos
+        return shownEmojis.has(emoji) ? emoji : '(?)';
+    }).join(' '); // Juntamos todos los emojis y (?) con un espacio entre ellos
 
     console.log(emojiCollection);  // Verificar que se genera correctamente la colección de emojis.
 
