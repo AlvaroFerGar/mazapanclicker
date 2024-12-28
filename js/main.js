@@ -37,13 +37,10 @@ let popupActive = false; // Bandera para controlar si hay popup activo
 let tooltipTimeout = null; // Para controlar el tiempo de aparición del tooltip
 
 function showTooltip() {
-    console.log("showtool");
     let emojiCollection = negativeEmojis.map(emoji => {
         // Si el emoji está en shownEmojis, lo muestra, si no, pone ⬜
         return shownEmojis.has(emoji) ? emoji : '(?)';
     }).join(' '); // Juntamos todos los emojis y (?) con un espacio entre ellos
-
-    console.log(emojiCollection);  // Verificar que se genera correctamente la colección de emojis.
 
     // Verificar si el tooltip ya está visible para evitar crear uno nuevo
     let existingTooltip = document.querySelector('.custom-tooltip');

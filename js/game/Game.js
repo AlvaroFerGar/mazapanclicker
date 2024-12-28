@@ -13,13 +13,9 @@ class Game {
     handleMouseDownWindow(event) {
         event.preventDefault();
         
-        console.log("clic "+event.button);
-
         if (event.button != 0){
             return;
         }
-
-        console.log("clic");
 
         this.misclick_count++;
         console.log("misclic:"+this.misclick_count);
@@ -29,7 +25,6 @@ class Game {
 
     handleMouseDown(event) {
         event.preventDefault();
-        console.log("clic");
 
         if (event.button != 0){
             return;
