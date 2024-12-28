@@ -74,6 +74,7 @@ class Mazapan {
             };
             
             this.applyRepulsion(this.mousePosition, Mazapan.JUMP_REPULSION_RADIUS);
+            this.applyRepulsion(intermediatePoint, Mazapan.JUMP_REPULSION_RADIUS);
         }
     }
 
