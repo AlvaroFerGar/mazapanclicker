@@ -97,7 +97,6 @@ body {
 #mazapan {
     width: 256px;
     height: 106px;
-    cursor: pointer;
     transition: transform 0.1s;
     user-select: none;
     position: absolute;
