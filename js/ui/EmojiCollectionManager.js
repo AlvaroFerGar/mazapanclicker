@@ -1,6 +1,6 @@
-//Clase que controla el minijuego alternativo de conseguir todos los emojis
 class EmojiCollectionManager {
-    constructor() {
+    constructor(shownEmojisElement) {
+        this.shownEmojisElement = shownEmojisElement;
         this.completeListOfEmojis = [
             '😵', '💀', '🙁', '💩', '😢', '🚫', '😣', '🖕', '❌', '🤕',
             '🛑', '😫', '👎', '🥴', '😭', '😓', '🤢', '☹️', '🤬', '❓',
@@ -38,7 +38,9 @@ class EmojiCollectionManager {
     }
 
     positionTooltip(tooltip) {
-        const rect = gameUI.shownEmojisElement.getBoundingClientRect();
+        if (!this.shownEmojisElement) return;
+
+        const rect = this.shownEmojisElement.getBoundingClientRect();
         if (rect.top < 0 || rect.left < 0) {
             console.error("El elemento no está visible en la pantalla");
             return;
@@ -52,7 +54,7 @@ class EmojiCollectionManager {
         tooltip.style.visibility = 'visible';
         tooltip.style.opacity = 1;
 
-        gameUI.shownEmojisElement.addEventListener('mouseleave', () => tooltip.remove());
+        this.shownEmojisElement.addEventListener('mouseleave', () => tooltip.remove());
     }
 
     hideTooltip() {
@@ -67,28 +69,34 @@ class EmojiCollectionManager {
         if (score.misclicks > 0 && !this.popupActive) {
             const randomEmoji = this.completeListOfEmojis[Math.floor(Math.random() * this.completeListOfEmojis.length)];
             
-            this.createAndShowPopup(randomEmoji);
-
             if (!this.collectedEmojis.has(randomEmoji)) {
                 this.collectedEmojis.add(randomEmoji);
+                this.createAndShowPopup(randomEmoji, score);
                 this.checkCompletion(score.mazapanes);
             }
         }
 
-        if (this.collectedEmojis.size > 0) {
-            gameUI.shownEmojisElement.textContent = 
+        this.updateCollectionCounter();
+    }
+
+    updateCollectionCounter() {
+        if (this.collectedEmojis.size > 0 && this.shownEmojisElement) {
+            this.shownEmojisElement.textContent = 
                 `Colección de errores: ${this.collectedEmojis.size}/${this.completeListOfEmojis.length}`;
         }
     }
 
-    createAndShowPopup(emoji) {
+    createAndShowPopup(emoji, score) {
         const emojiPopUp = document.createElement('div');
         emojiPopUp.className = 'emoji-popup';
         emojiPopUp.textContent = emoji;
         
-        const rect = gameUI.scoreElement.getBoundingClientRect();
-        emojiPopUp.style.left = `${rect.left + rect.width * 0.5 - 50}px`;
-        emojiPopUp.style.top = `${rect.top + rect.height * 0.5}px`;
+        // Posicionar relativo al centro de la pantalla o donde se hizo clic
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        emojiPopUp.style.left = `${windowWidth * 0.5 - 50}px`;
+        emojiPopUp.style.top = `${windowHeight * 0.3}px`;
         
         document.body.appendChild(emojiPopUp);
         this.popupActive = true;
@@ -103,10 +111,9 @@ class EmojiCollectionManager {
         setTimeout(() => this.hideTooltip(), 1500);
     }
 
-    //Comprueba si se han conseguido todos los emojis
     checkCompletion(mazapanes) {
-        if (this.collectedEmojis.size != this.completeListOfEmojis.length) {
-            return
+        if (this.collectedEmojis.size !== this.completeListOfEmojis.length) {
+            return;
         }
 
         const timeSpent = Math.floor((new Date() - this.startTime) / 1000);

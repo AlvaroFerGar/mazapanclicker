@@ -1,5 +1,5 @@
 // Inicialización del juego
-const emojiManager = new EmojiCollectionManager();
+const emojiManager = new EmojiCollectionManager(document.getElementById('shownEmojis'));
 const gameUI = new GameUI(emojiManager);
 const game = new Game();
 
@@ -14,7 +14,7 @@ const animationManager = new AnimationManager(mazapan, arrow);
 function updateDisplay() {
     const score = game.getScore();
     gameUI.updateScore(score.mazapanes, score.misclicks);
-    emojiManager.showEmojiPopup(score);
+    emojiManager.showEmojiPopup(score,document.getElementById('score'));
 }
 
 // Inicializar eventos del juego
