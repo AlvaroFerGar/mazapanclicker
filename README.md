@@ -15,7 +15,7 @@ Mazapán Clicker lleva los *clickers* a un nuevo nivel: precisión, estrategia y
 
 Este juego está **diseñado exclusivamente para PC** debido a los altísimos requisitos gráficos necesarios para procesar la compleja interacción con el mazapán en tiempo real.
 
-Tendrás que ignorar que el mazapán es un realidad un pan. Hay mazapanes con forma de barra de pan, ¿vale?
+Tendrás que ignorar que el mazapán es en realidad un pan. Hay mazapanes con forma de barra de pan, ¿vale?
 
 ## 🧩 Pista  
 
