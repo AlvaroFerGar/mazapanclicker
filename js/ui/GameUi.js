@@ -1,3 +1,4 @@
+//Clase que actualiza el score y que se encarga de ejecutar el fin del mismo
 class GameUI {
     constructor(emojiManager) {
         this.emojiManager = emojiManager; // Referencia al EmojiManager

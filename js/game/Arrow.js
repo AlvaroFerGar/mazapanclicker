@@ -1,3 +1,7 @@
+/**
+ * Clase que maneja una flecha visual que indica la dirección del mazapán cuando está fuera de la pantalla.
+ * La flecha se representa como un triángulo usando bordes CSS y se posiciona en los bordes de la ventana.
+ */
 class Arrow {
     constructor() {
         this.element = document.createElement('div');

@@ -8,10 +8,8 @@ class AnimationManager {
     animate() {
         // Animar el mazapán
         this.mazapan.animate();
-        
         // Animar la flecha indicadora
         this.updateArrowPosition();
-        
         // Continuar el ciclo de animación
         requestAnimationFrame(() => this.animate());
     }

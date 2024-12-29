@@ -1,22 +1,27 @@
 class Mazapan {
-    static REPULSION_RADIUS = 300;
-    static VERLET_ITERATIONS = 2;
-    static DAMPING = 0.9;
-    static RETURN_STRENGTH = 0.005;
-    static MOUSE_JUMP_THRESHOLD = 10;
-    static MOUSE_JUMP_TIME = 100;
-    static JUMP_REPULSION_RADIUS = 150;
+    static REPULSION_RADIUS = 300;      // Radio de repulsión para evitar que el mazapán se acerque al ratón.
+    static VERLET_ITERATIONS = 2;       // Iteraciones del algoritmo de integración para mayor precisión física.
+    static DAMPING = 0.9;               // Amortiguación para reducir la energía del movimiento.
+    static RETURN_STRENGTH = 0.005;     // Fuerza con la que el mazapán "desea" volver a su posición anclada.
+    static MOUSE_JUMP_THRESHOLD = 10;   // Umbral de distancia para considerar que el ratón "saltó".
+    static MOUSE_JUMP_TIME = 100;       // Tiempo máximo entre movimientos del ratón para detectar saltos.
+    static JUMP_REPULSION_RADIUS = 150; // Radio de repulsión especial para saltos bruscos del ratón.
+
 
     constructor(element) {
         this.element = element;
         this.window = window;
+
         this.position = { x: 0, y: 0 };
         this.previousPosition = { x: 0, y: 0 };
+
         this.anchorPosition = { x: 0, y: 0 };
+
         this.mousePosition = { x: 0, y: 0 };
         this.previousMousePosition = { x: 0, y: 0 };
         this.lastMouseMoveTime = 0;
         
+        // Inicializa la posición del mazapán al cargar la página.
         window.addEventListener('load', () => {
             this.updateAnchorToCenter();
             
@@ -25,9 +30,11 @@ class Mazapan {
             this.previousMousePosition = { ...this.mousePosition };
         });
 
+        // Recalcula la posición ancla cuando la ventana cambia de tamaño.
         window.addEventListener('resize', () => this.updateAnchorToCenter());
 
 
+        // Maneja los movimientos del ratón.
         document.addEventListener('mousemove', (event) => {
             this.previousMousePosition = { ...this.mousePosition };
             this.mousePosition.x = event.clientX;
@@ -37,7 +44,7 @@ class Mazapan {
             const timeDelta = currentTime - this.lastMouseMoveTime;
             this.lastMouseMoveTime = currentTime;
 
-            
+            // Detecta saltos bruscos del ratón.
             const jumpDistance = Math.sqrt(
                 Math.pow(this.mousePosition.x - this.previousMousePosition.x, 2) +
                 Math.pow(this.mousePosition.y - this.previousMousePosition.y, 2)
@@ -72,7 +79,8 @@ class Mazapan {
                 x: this.previousMousePosition.x + (this.mousePosition.x - this.previousMousePosition.x) * t,
                 y: this.previousMousePosition.y + (this.mousePosition.y - this.previousMousePosition.y) * t
             };
-            
+            // Aplica repulsión en cada punto intermedio para garantizar que el mazapán
+            // no se acerque al ratón, incluso si este se movió rápidamente.
             this.applyRepulsion(this.mousePosition, Mazapan.JUMP_REPULSION_RADIUS);
             this.applyRepulsion(intermediatePoint, Mazapan.JUMP_REPULSION_RADIUS);
         }
@@ -80,25 +88,25 @@ class Mazapan {
 
     
     isPathBlocked(pathOrigin, pathEnd, obstacleCenter, obstacleRadius) {
-        // Vector from p1 to p2
+        // Vector desde p1 hasta p2
         const dx = pathEnd.x - pathOrigin.x;
         const dy = pathEnd.y - pathOrigin.y;
         
-        // Vector from p1 to circle center
+        // Vector desde p1 hasta el centro del círculo
         const cx = obstacleCenter.x - pathOrigin.x;
         const cy = obstacleCenter.y - pathOrigin.y;
         
-        // Length of segment squared
+        // Longitud del segmento al cuadrado
         const lengthSquared = dx * dx + dy * dy;
         
-        // Dot product of segment and circle-to-p1 vector
+        // Producto punto entre el segmento y el vector círculo-a-p1
         const dot = (cx * dx + cy * dy) / lengthSquared;
         
-        // Find closest point on segment to circle center
+        // Encuentra el punto más cercano del segmento al centro del círculo
         const closestX = pathOrigin.x + dx * Math.max(0, Math.min(1, dot));
         const closestY = pathOrigin.y + dy * Math.max(0, Math.min(1, dot));
         
-        // Check if closest point is within radius
+        // Verifica si el punto más cercano está dentro del radio
         const distanceSquared = Math.pow(closestX - obstacleCenter.x, 2) + Math.pow(closestY - obstacleCenter.y, 2);
         return distanceSquared <= obstacleRadius * obstacleRadius;
     }
@@ -218,23 +226,30 @@ class Mazapan {
     }
 
     animate() {
-        this.verletIntegrate();
-        
+        // Calcula la integración de Verlet para actualizar la posición en base a inercia
+        this.verletIntegrate();      
+
+        // Repite varias iteraciones para simular precisión en los cálculos de fuerzas
         for (let i = 0; i < Mazapan.VERLET_ITERATIONS; i++) {
             const bounds = this.getBounds();
             const closestX = Math.max(bounds.left, Math.min(this.mousePosition.x, bounds.right));
             const closestY = Math.max(bounds.top, Math.min(this.mousePosition.y, bounds.bottom));
-    
             const distanceX = this.mousePosition.x - closestX;
             const distanceY = this.mousePosition.y - closestY;
             const dist = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-            if(dist<Mazapan.REPULSION_RADIUS){
+    
+            // aplica una fuerza para alejar el objeto
+            if (dist < Mazapan.REPULSION_RADIUS) {
                 this.applyRepulsion();
-            }
-            else
+            } 
+            //intenta que el objeto regrese a su posición ancla
+            else {
                 this.returnToAnchor(dist);
+            }
         }
+        // Aplica un efecto de amortiguación
         this.applyDamping();
+        // Actualiza la posición
         this.updatePosition();
     }
 }
