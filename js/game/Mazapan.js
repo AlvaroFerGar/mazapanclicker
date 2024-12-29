@@ -172,7 +172,7 @@ class Mazapan {
 
         if(this.isPathBlocked(this.position, this.anchorPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2)){
             // Movimiento lento hacia la posición anclada
-            const smallStep = 0.01; // Factor de avance lento
+            const smallStep = 0.1; // Factor de avance lento
             const tentativePosition = {
                 x: this.position.x + (this.anchorPosition.x - this.position.x) * smallStep,
                 y: this.position.y + (this.anchorPosition.y - this.position.y) * smallStep
@@ -184,7 +184,7 @@ class Mazapan {
                 Math.pow(tentativePosition.y - this.mousePosition.y, 2)
             );
 
-            if (distanceToMouse > Mazapan.REPULSION_RADIUS*1.5) {
+            if (distanceToMouse > Mazapan.REPULSION_RADIUS*1.25) {
                 this.position = tentativePosition;
             }
         }
