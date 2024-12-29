@@ -1,4 +1,3 @@
-//Clase que controla el minijuego alternativo de conseguir todos los emojis
 class EmojiCollectionManager {
     constructor() {
         this.completeListOfEmojis = [
@@ -17,7 +16,7 @@ class EmojiCollectionManager {
             this.collectedEmojis.has(emoji) ? emoji : '(?)'
         ).join(' ');
 
-        let existingTooltip = document.querySelector('.emoji-tooltip');
+        let existingTooltip = document.querySelector('.custom-tooltip');
         if (existingTooltip) {
             existingTooltip.textContent = emojiCollection;
             existingTooltip.style.visibility = 'visible';
@@ -31,7 +30,7 @@ class EmojiCollectionManager {
 
     createTooltipElement(content) {
         const tooltip = document.createElement('div');
-        tooltip.className = 'emoji-tooltip';
+        tooltip.className = 'custom-tooltip';
         tooltip.textContent = content;
         document.body.appendChild(tooltip);
         return tooltip;
@@ -56,21 +55,20 @@ class EmojiCollectionManager {
     }
 
     hideTooltip() {
-        document.querySelectorAll('.emoji-tooltip').forEach(tooltip => {
+        document.querySelectorAll('.custom-tooltip').forEach(tooltip => {
             tooltip.style.visibility = 'hidden';
             tooltip.style.opacity = 0;
             tooltip.remove();
         });
     }
 
-    showEmojiPopup(score) {
+    showErrorPopup(score) {
         if (score.misclicks > 0 && !this.popupActive) {
             const randomEmoji = this.completeListOfEmojis[Math.floor(Math.random() * this.completeListOfEmojis.length)];
             
-            this.createAndShowPopup(randomEmoji);
-
             if (!this.collectedEmojis.has(randomEmoji)) {
                 this.collectedEmojis.add(randomEmoji);
+                this.createAndShowPopup(randomEmoji);
                 this.checkCompletion(score.mazapanes);
             }
         }
@@ -82,19 +80,19 @@ class EmojiCollectionManager {
     }
 
     createAndShowPopup(emoji) {
-        const emojiPopUp = document.createElement('div');
-        emojiPopUp.className = 'emoji-popup';
-        emojiPopUp.textContent = emoji;
+        const popup = document.createElement('div');
+        popup.className = 'emoji-popup';
+        popup.textContent = emoji;
         
         const rect = gameUI.scoreElement.getBoundingClientRect();
-        emojiPopUp.style.left = `${rect.left + rect.width * 0.5 - 50}px`;
-        emojiPopUp.style.top = `${rect.top + rect.height * 0.5}px`;
+        popup.style.left = `${rect.left + rect.width * 0.5 - 50}px`;
+        popup.style.top = `${rect.top + rect.height * 0.5}px`;
         
-        document.body.appendChild(emojiPopUp);
+        document.body.appendChild(popup);
         this.popupActive = true;
         
         setTimeout(() => {
-            emojiPopUp.remove();
+            popup.remove();
             this.popupActive = false;
         }, 1000);
 
@@ -103,20 +101,18 @@ class EmojiCollectionManager {
         setTimeout(() => this.hideTooltip(), 1500);
     }
 
-    //Comprueba si se han conseguido todos los emojis
     checkCompletion(mazapanes) {
-        if (this.collectedEmojis.size != this.completeListOfEmojis.length) {
-            return
-        }
-
-        const timeSpent = Math.floor((new Date() - this.startTime) / 1000);
-        const minutes = Math.floor(timeSpent / 60);
-        const seconds = timeSpent % 60;
-        const timeMessage = minutes > 0 
-            ? `${minutes} minutos y ${seconds} segundos` 
-            : `${seconds} segundos`;    
-        if (mazapanes === 0) {
-            alert(`¡Enhorabuena! Has visto todos los emojis en solo ${timeMessage}. Mientras tanto, llevas 0 clics al mazapan`);
+        if (this.collectedEmojis.size === this.completeListOfEmojis.length) {
+            const timeSpent = Math.floor((new Date() - this.startTime) / 1000);
+            const minutes = Math.floor(timeSpent / 60);
+            const seconds = timeSpent % 60;
+            const timeMessage = minutes > 0 
+                ? `${minutes} minutos y ${seconds} segundos` 
+                : `${seconds} segundos`;
+                
+            if (mazapanes === 0) {
+                alert(`¡Enhorabuena! Has visto todos los emojis en solo ${timeMessage}. Mientras tanto, llevas 0 clics al mazapan`);
+            }
         }
     }
 }

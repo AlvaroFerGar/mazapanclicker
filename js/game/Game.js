@@ -16,11 +16,11 @@ class Game {
             return;
         }
     
-        // Si el click fue en el mazapán, no contar como misclick
+        // Si el click fue en el mazapán, cuenta como score
         if (event.target.id === 'mazapan') {
             this.mazapanes_count++;
             console.log("clic:"+this.mazapanes_count);
-        } else {
+        } else {// Si el click es fuera se cuenta como misclick
             this.misclick_count++;
             console.log("misclic:"+this.misclick_count);
         }
