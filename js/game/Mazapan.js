@@ -6,6 +6,9 @@ class Mazapan {
     static MOUSE_JUMP_THRESHOLD = 10;   // Umbral de distancia para considerar que el ratón "saltó".
     static MOUSE_JUMP_TIME = 100;       // Tiempo máximo entre movimientos del ratón para detectar saltos.
     static JUMP_REPULSION_RADIUS = 150; // Radio de repulsión especial para saltos bruscos del ratón.
+    static MAX_RETURN_SPEED = 1;        // Velocidad máxima permitida al retornar a la posición de anclaje
+    static OVERFLOW_MARGIN = 500;       // Margen permitido de desbordamiento fuera de la ventana
+    static MIN_RETURNING_ATTEMPTS = 100; // Intentos mínimos antes de intentar retornar a la posición de anclaje
 
 
     constructor(element) {
@@ -186,7 +189,6 @@ class Mazapan {
 
     returnToAnchor() {
      
-        const RETURNING_MAX_SPEED = 1;
 
         if(this.isPathBlocked(this.position, this.anchorPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2)){
             // Movimiento lento hacia la posición anclada
@@ -195,8 +197,8 @@ class Mazapan {
             const dy = (this.anchorPosition.y - this.position.y) * smallStep;
     
             // Limit movement to a maximum of 10 units in either direction
-            const limitedDx = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dx));
-            const limitedDy = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dy));
+            const limitedDx = Math.max(-1*Mazapan.MAX_RETURN_SPEED, Math.min(Mazapan.MAX_RETURN_SPEED, dx));
+            const limitedDy = Math.max(-1*Mazapan.MAX_RETURN_SPEED, Math.min(Mazapan.MAX_RETURN_SPEED, dy));
     
             const tentativePosition = {
                 x: this.position.x + limitedDx,
@@ -219,8 +221,8 @@ class Mazapan {
             const dy = (this.anchorPosition.y - this.position.y) * Mazapan.RETURN_STRENGTH;
     
             // Limit movement to a maximum of 10 units in either direction
-            const limitedDx = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dx));
-            const limitedDy = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dy));
+            const limitedDx = Math.max(-1*Mazapan.MAX_RETURN_SPEED, Math.min(Mazapan.MAX_RETURN_SPEED, dx));
+            const limitedDy = Math.max(-1*Mazapan.MAX_RETURN_SPEED, Math.min(Mazapan.MAX_RETURN_SPEED, dy));
     
             this.position.x += limitedDx;
             this.position.y += limitedDy;
@@ -233,15 +235,14 @@ class Mazapan {
     }
 
     updatePosition() {
-        const margin = 500;
         const windowWidth = this.window.innerWidth;
         const windowHeight = this.window.innerHeight;
     
         // La posicion actual y la previa se limita si ha superado las dimensiones de la ventana en algún eje
-        this.position.x = Math.max(-margin, Math.min(this.position.x, windowWidth + margin));
-        this.position.y = Math.max(-margin, Math.min(this.position.y, windowHeight + margin));
-        this.previousPosition.x = Math.max(-margin, Math.min(this.previousPosition.x, windowWidth + margin));
-        this.previousPosition.y = Math.max(-margin, Math.min(this.previousPosition.y, windowHeight + margin));
+        this.position.x = Math.max(-Mazapan.OVERFLOW_MARGIN, Math.min(this.position.x, windowWidth + Mazapan.OVERFLOW_MARGIN));
+        this.position.y = Math.max(-Mazapan.OVERFLOW_MARGIN, Math.min(this.position.y, windowHeight + Mazapan.OVERFLOW_MARGIN));
+        this.previousPosition.x = Math.max(-Mazapan.OVERFLOW_MARGIN, Math.min(this.previousPosition.x, windowWidth + Mazapan.OVERFLOW_MARGIN));
+        this.previousPosition.y = Math.max(-Mazapan.OVERFLOW_MARGIN, Math.min(this.previousPosition.y, windowHeight + Mazapan.OVERFLOW_MARGIN));
     
 
 
@@ -251,7 +252,6 @@ class Mazapan {
 
     animate() {
 
-        const MIN_RETURNING_ATEMPS=100;
         // Calcula la integración de Verlet para actualizar la posición en base a inercia
         this.verletIntegrate();      
 
@@ -270,7 +270,7 @@ class Mazapan {
                 this.applyRepulsion();
             } 
             //intenta que el objeto regrese a su posición ancla
-            else if (this.countReturningAtemps < MIN_RETURNING_ATEMPS) {
+            else if (this.countReturningAtemps < Mazapan.MIN_RETURNING_ATTEMPTS) {
                 this.countReturningAtemps++;
             }
             else{
