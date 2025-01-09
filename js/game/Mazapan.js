@@ -20,6 +20,8 @@ class Mazapan {
         this.mousePosition = { x: 0, y: 0 };
         this.previousMousePosition = { x: 0, y: 0 };
         this.lastMouseMoveTime = 0;
+
+        this.countReturningAtemps = 0;
         
         // Inicializa la posición del mazapán al cargar la página.
         window.addEventListener('load', () => {
@@ -117,24 +119,30 @@ class Mazapan {
         const closestY = Math.max(bounds.top, Math.min(point.y, bounds.bottom));
     
         // Vector desde el ratón al punto más cercano del objeto
-        const distanceX = closestX - point.x;
-        const distanceY = closestY - point.y;
+        let distanceX = closestX - point.x;
+        let distanceY = closestY - point.y;
         
         // Distancia al cuadrado (evitamos sqrt innecesario)
         const distanceSquared = distanceX * distanceX + distanceY * distanceY;
         
         // Distancia mínima para evitar divisiones por cero y fuerzas extremas
-        const MIN_DISTANCE = 1.0;
-        
+        const MIN_DISTANCE = 0.1;
+
         // Si estamos dentro del radio de repulsión
         if (distanceSquared < radius * radius) {
             // Calculamos la distancia real, pero con un mínimo para evitar explosiones
             const distance = Math.max(Math.sqrt(distanceSquared), MIN_DISTANCE);
             
+
+            distanceX = Math.max(Math.abs(distanceX), Math.abs(bounds.top - bounds.bottom)) * Math.sign(distanceX);
+            distanceY = Math.max(Math.abs(distanceY), Math.abs(bounds.right - bounds.left)) * Math.sign(distanceY);
+
+            //distanceX = Math.max(distanceX, bounds.top-bounds.bottom);
+            //distanceY = Math.max(distanceY, bounds.right-bounds.left);
             // Vector de dirección normalizado
             const dirX = distanceX / distance;
             const dirY = distanceY / distance;
-            
+
             // Función de fuerza no lineal que se vuelve más fuerte cuando más cerca
             // Usamos una función exponencial inversa para mayor control
             const normalizedDist = distance / radius;
@@ -177,15 +185,24 @@ class Mazapan {
     }
 
     returnToAnchor() {
+     
+        const RETURNING_MAX_SPEED = 1;
 
         if(this.isPathBlocked(this.position, this.anchorPosition, this.mousePosition, Mazapan.REPULSION_RADIUS*1.2)){
             // Movimiento lento hacia la posición anclada
             const smallStep = 0.1; // Factor de avance lento
+            const dx = (this.anchorPosition.x - this.position.x) * smallStep;
+            const dy = (this.anchorPosition.y - this.position.y) * smallStep;
+    
+            // Limit movement to a maximum of 10 units in either direction
+            const limitedDx = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dx));
+            const limitedDy = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dy));
+    
             const tentativePosition = {
-                x: this.position.x + (this.anchorPosition.x - this.position.x) * smallStep,
-                y: this.position.y + (this.anchorPosition.y - this.position.y) * smallStep
+                x: this.position.x + limitedDx,
+                y: this.position.y + limitedDy
             };
-
+    
             // Verificar que el avance no esté dentro del radio de repulsión del mouse
             const distanceToMouse = Math.sqrt(
                 Math.pow(tentativePosition.x - this.mousePosition.x, 2) +
@@ -198,8 +215,15 @@ class Mazapan {
         }
         else{
 
-            this.position.x += (this.anchorPosition.x - this.position.x) * Mazapan.RETURN_STRENGTH;
-            this.position.y += (this.anchorPosition.y - this.position.y) * Mazapan.RETURN_STRENGTH;
+            const dx = (this.anchorPosition.x - this.position.x) * Mazapan.RETURN_STRENGTH;
+            const dy = (this.anchorPosition.y - this.position.y) * Mazapan.RETURN_STRENGTH;
+    
+            // Limit movement to a maximum of 10 units in either direction
+            const limitedDx = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dx));
+            const limitedDy = Math.max(-1*RETURNING_MAX_SPEED, Math.min(RETURNING_MAX_SPEED, dy));
+    
+            this.position.x += limitedDx;
+            this.position.y += limitedDy;
         }
     }
 
@@ -226,6 +250,8 @@ class Mazapan {
     }
 
     animate() {
+
+        const MIN_RETURNING_ATEMPS=100;
         // Calcula la integración de Verlet para actualizar la posición en base a inercia
         this.verletIntegrate();      
 
@@ -240,10 +266,14 @@ class Mazapan {
     
             // aplica una fuerza para alejar el objeto
             if (dist < Mazapan.REPULSION_RADIUS) {
+                this.countReturningAtemps = 0;
                 this.applyRepulsion();
             } 
             //intenta que el objeto regrese a su posición ancla
-            else {
+            else if (this.countReturningAtemps < MIN_RETURNING_ATEMPS) {
+                this.countReturningAtemps++;
+            }
+            else{
                 this.returnToAnchor(dist);
             }
         }
